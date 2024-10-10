@@ -50,16 +50,17 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 ###     ★查看是否存在大事务，大事务是导致主从复制延迟的真凶！
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
-	/Timestamp :/ {
-	  timestamp = substr($0, index($0, "#"), 17)
-	  match($0, /Table : `[^`]+`.`[^`]+`/)
-	  table = substr($0, RSTART, RLENGTH)
-	}
-	/\[Transaction total :/ {
-	  gsub("`", "", table)
-	  print timestamp, table, $0
-	}
+  /Timestamp :/ {
+    timestamp = substr($0, index($0, "#"), 17)
+    match($0, /Table : `[^`]+`.`[^`]+`/)
+    table = substr($0, RSTART, RLENGTH)
+  }
+  /\[Transaction total :/ {
+    gsub("`", "", table)
+    print timestamp, table, $0
+  }
 ' | sort -rn -k9,9 | head -n 10
+
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
