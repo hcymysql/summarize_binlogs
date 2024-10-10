@@ -69,6 +69,12 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 #240816 10:56:18  Table : test.sbtest1 [Transaction total : 1 ==> Insert(s) : 1 | Update(s) : 0 | Delete(s) : 0] 
 ```
 
+## Q2：哪些表插入/更新/删除语句最多？
+```
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep Table |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
+ 150220 `test`.`sbtest1`
+      3 `test`.`t1`
+```
 
 
 
