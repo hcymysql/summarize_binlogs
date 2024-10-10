@@ -47,7 +47,7 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 
 # 使用示例
 ## Q1: 按照事务大小进行排序，显示出前10名
-###     查看是否存在大事务，大事务是导致主从复制延迟的真凶！
+###     ★查看是否存在大事务，大事务是导致主从复制延迟的真凶！
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
 	/Timestamp :/ {
