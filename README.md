@@ -1,4 +1,6 @@
 # summarize_binlogs - MySQL Binlog分析统计概述
+参考 [Percona博客](https://www.percona.com/blog/identifying-useful-information-mysql-row-based-binary-logs/) 并对脚本加以修改。
+
 ```
 # /root/summarize_binlogs.sh
 Error: Binlog file is required.
