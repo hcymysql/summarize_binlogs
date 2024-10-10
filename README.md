@@ -76,7 +76,7 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
       3 `test`.`t1`
 ```
 
-## Q2：统计哪些表插入/更新/删除语句最多？
+## Q3：统计哪些表插入/更新/删除语句最多？
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'INSERT' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
   37561 `test`.`sbtest1`
@@ -87,7 +87,11 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
   75106 `test`.`sbtest1`
 ```
 
-
-
-
+## Q4：对 test.sbtest1 表执行了多少次插入/更新/删除查询？
+```
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -i '`test`.`sbtest1`' | awk '{print $7 " " $11}' | sort -k1,2 | uniq -c
+  37553 `test`.`sbtest1` DELETE
+  37561 `test`.`sbtest1` INSERT
+  75106 `test`.`sbtest1` UPDATE
+```
 
