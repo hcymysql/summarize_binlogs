@@ -60,7 +60,10 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
     print timestamp, table, $0
   }
 ' | sort -rn -k9,9 | head -n 10
+```
 
+输出结果：
+```
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
 #240816 10:38:23  Table : test.sbtest1 [Transaction total : 2716 ==> Insert(s) : 2716 | Update(s) : 0 | Delete(s) : 0] 
@@ -114,7 +117,10 @@ END {
   }
 }
 '
+```
 
+输出结果：
+```
 Table                     INSERT     UPDATE     DELETE     TOTAL     
 ---------------------------------------------------------------
 test.sbtest1              37561      75106      37553      150220    
