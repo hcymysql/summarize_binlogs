@@ -69,14 +69,23 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 #240816 10:56:18  Table : test.sbtest1 [Transaction total : 1 ==> Insert(s) : 1 | Update(s) : 0 | Delete(s) : 0] 
 ```
 
-## Q2：哪些表插入/更新/删除语句最多？
+## Q2：统计哪些表插入+更新+删除语句总和最多？
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | grep Table |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
  150220 `test`.`sbtest1`
       3 `test`.`t1`
 ```
 
-
+## Q2：统计哪些表插入/更新/删除语句最多？
+```
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'INSERT' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
+  37561 `test`.`sbtest1`
+      3 `test`.`t1`
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'DELETE' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
+  37553 `test`.`sbtest1`
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'UPDATE' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
+  75106 `test`.`sbtest1`
+```
 
 
 
