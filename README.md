@@ -44,7 +44,7 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 ------------------------------
 
 # 使用示例
-## Q1: 按照事务大小进行排序，显示出前10名
+## Q1: 按照事务大小进行排序，显示出前10名 - 查看是否存在大事务，大事务是导致主从延迟的真凶！
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
 	/Timestamp :/ {
@@ -69,29 +69,50 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 #240816 10:56:18  Table : test.sbtest1 [Transaction total : 1 ==> Insert(s) : 1 | Update(s) : 0 | Delete(s) : 0] 
 ```
 
-## Q2：统计哪些表插入+更新+删除语句总和最多？
+## Q2：统计哪些表插入/更新/删除语句最多？
 ```
-# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep Table |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
- 150220 `test`.`sbtest1`
-      3 `test`.`t1`
-```
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
+{
+  # 提取包含表名的行
+  if ($0 ~ /Table : `([^`]+)`\.`([^`]+)`/) {
+    db = gensub(/.*Table : `([^`]+)`.*/, "\\1", "g", $0);
+    tb = gensub(/.*Table : `[^`]+`\.`([^`]+)`.*/, "\\1", "g", $0);
+  }
+  
+  # 匹配操作类型并记录操作数量
+  if ($0 ~ /Query Type : INSERT/) {
+    insert[db "." tb]++;
+  } else if ($0 ~ /Query Type : UPDATE/) {
+    update[db "." tb]++;
+  } else if ($0 ~ /Query Type : DELETE/) {
+    del[db "." tb]++;
+  }
+}
 
-## Q3：统计哪些表插入/更新/删除语句最多？
-```
-# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'INSERT' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
-  37561 `test`.`sbtest1`
-      3 `test`.`t1`
-# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'DELETE' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
-  37553 `test`.`sbtest1`
-# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -E 'UPDATE' |cut -d':' -f5| cut -d' ' -f2 | sort | uniq -c | sort -nr
-  75106 `test`.`sbtest1`
-```
+# 打印总结
+END {
+  # 打印标题行
+  printf "%-25s %-10s %-10s %-10s %-10s\n", "Table", "INSERT", "UPDATE", "DELETE", "TOTAL";
+  printf "---------------------------------------------------------------\n";
+  
+  # 用数组保存结果行
+  for (db_tb in insert) {
+    total = insert[db_tb] + update[db_tb] + del[db_tb];
+    output[db_tb] = sprintf("%-25s %-10d %-10d %-10d %-10d", db_tb, insert[db_tb], update[db_tb], del[db_tb], total);
+    total_count[db_tb] = total; # 用于排序
+  }
 
-## Q4：对 test.sbtest1 表执行了多少次插入/更新/删除查询？
-```
-# /root/summarize_binlogs.sh -f mysql-bin.000009 | grep -i '`test`.`sbtest1`' | awk '{print $7 " " $11}' | sort -k1,2 | uniq -c
-  37553 `test`.`sbtest1` DELETE
-  37561 `test`.`sbtest1` INSERT
-  75106 `test`.`sbtest1` UPDATE
-```
+  # 排序输出
+  n = asorti(total_count, sorted, "@val_num_desc");
+  for (i = 1; i <= n; i++) {
+    db_tb = sorted[i];
+    print output[db_tb];
+  }
+}
+'
 
+Table                     INSERT     UPDATE     DELETE     TOTAL     
+---------------------------------------------------------------
+test.sbtest1              37561      75106      37553      150220    
+test.t1                   3          0          0          3   
+```
