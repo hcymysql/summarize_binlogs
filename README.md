@@ -50,7 +50,7 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 ```
 # /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
 	/Timestamp :/ {
-	  timestamp = substr($0, index($0, "#"), 17)  # Capture 17 characters for full timestamp
+	  timestamp = substr($0, index($0, "#"), 17)
 	  match($0, /Table : `[^`]+`.`[^`]+`/)
 	  table = substr($0, RSTART, RLENGTH)
 	}
