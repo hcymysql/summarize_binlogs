@@ -46,7 +46,7 @@ Timestamp : #240815 17:19:43 Table : `test`.`sbtest1` Query Type : UPDATE 1 row(
 # 使用示例
 ## Q1: 按照事务大小进行排序，显示出前10名
 ```
-/root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
+# /root/summarize_binlogs.sh -f mysql-bin.000009 | awk '
 	/Timestamp :/ {
 	  timestamp = substr($0, index($0, "#"), 17)  # Capture 17 characters for full timestamp
 	  match($0, /Table : `[^`]+`.`[^`]+`/)
